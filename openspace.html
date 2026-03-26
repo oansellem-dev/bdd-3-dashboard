@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Open Space — Agents IA</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#16120D;min-height:100vh;color:#E8D5B0;overflow-x:hidden}
+
+/* ── TOPBAR ── */
+.topbar{height:50px;background:#0A0806;border-bottom:1px solid rgba(196,147,63,.3);display:flex;align-items:center;padding:0 24px;gap:12px}
+.logo{font-weight:800;font-size:15px;color:#C4933F;letter-spacing:.02em}
+.pill{background:rgba(196,147,63,.12);border:1px solid rgba(196,147,63,.25);color:#C4933F;padding:3px 11px;border-radius:20px;font-size:11px;font-weight:600}
+.tb-right{margin-left:auto;display:flex;gap:18px;align-items:center;font-size:12px;color:rgba(255,255,255,.45)}
+.tb-right strong{color:#E8D5B0}
+.btn{background:#C4933F;color:#fff;border:none;padding:7px 15px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:700}
+
+/* ── ROOM TITLE ── */
+.room-title{text-align:center;padding:18px 0 14px;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:rgba(196,147,63,.45)}
+
+/* ── OFFICE GRID ── */
+.office{display:flex;flex-wrap:wrap;justify-content:center;gap:44px;padding:10px 50px 90px}
+
+/* ── STATION ── */
+.station{width:200px;display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:transform .2s}
+.station:hover{transform:translateY(-3px)}
+
+/* ── CODE CLOUD ── */
+.cloud{
+  width:192px;min-height:88px;
+  background:#0D1117;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:8px;
+  padding:8px 10px;
+  font-family:'Courier New',monospace;
+  font-size:9px;line-height:1.7;
+  overflow:hidden;
+  margin-bottom:10px;
+  position:relative;
+}
+.cloud.idle{border-color:rgba(255,255,255,.04);color:rgba(255,255,255,.2);font-style:italic}
+/* triangle pointer */
+.cloud::after{
+  content:'';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);
+  border-left:8px solid transparent;border-right:8px solid transparent;border-top:8px solid #0D1117;
+}
+.cloud-line{animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── AGENT FIGURE ── */
+.figure{display:flex;flex-direction:column;align-items:center;position:relative}
+
+/* Person emoji */
+.person{font-size:36px;line-height:1;margin-bottom:2px;display:block;text-align:center}
+.person.typing{animation:bob .22s ease-in-out infinite alternate}
+@keyframes bob{from{transform:translateY(0) rotate(-1deg)}to{transform:translateY(-3px) rotate(1deg)}}
+
+/* Desk surface */
+.desk{
+  width:160px;height:14px;
+  background:linear-gradient(180deg,#5C4A2A,#3D3018);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:4px 4px 2px 2px;
+  box-shadow:0 4px 10px rgba(0,0,0,.6);
+  position:relative;
+  margin-top:0;
+}
+/* Desk legs */
+.desk::before,.desk::after{content:'';position:absolute;bottom:-15px;width:7px;height:15px;background:#2A1E0A;border-radius:0 0 3px 3px}
+.desk::before{left:22px}.desk::after{right:22px}
+
+/* Monitor */
+.monitor{
+  position:absolute;top:-40px;left:50%;transform:translateX(-50%);
+  width:54px;height:34px;
+  background:#090E14;
+  border:2px solid rgba(255,255,255,.15);
+  border-radius:4px;
+  overflow:hidden;
+  display:flex;flex-direction:column;gap:3px;padding:4px;
+}
+.mline{height:3px;border-radius:1px;opacity:.7;animation:mpulse 2s ease-in-out infinite}
+@keyframes mpulse{0%,100%{opacity:.3}50%{opacity:.9}}
+
+/* Keyboard */
+.keyboard{
+  position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);
+  width:46px;height:9px;
+  background:#161410;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:2px;
+  display:grid;grid-template-columns:repeat(7,1fr);gap:1px;padding:1px;
+}
+.key{background:#222018;border-radius:1px;transition:background .05s}
+
+/* ── STATUS BADGE ── */
+.badge{margin-top:20px;font-size:9px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.04em;white-space:nowrap}
+.b-idle{background:#2A2620;color:rgba(255,255,255,.35)}
+.b-working{background:#C4933F;color:#fff}
+.b-done{background:#22C55E;color:#fff}
+
+.aname{font-size:11px;font-weight:700;color:#E8D5B0;margin-top:5px;text-align:center}
+.arole{font-size:9px;color:rgba(255,255,255,.3);text-align:center;margin-top:2px}
+
+/* ── PROGRESS ── */
+.progbar{width:100%;height:3px;background:rgba(255,255,255,.07);border-radius:2px;margin-top:7px;overflow:hidden}
+.progfill{height:100%;border-radius:2px;width:0%;transition:width .8s ease}
+.progpct{font-size:9px;font-weight:700;text-align:right;margin-top:2px}
+
+/* ── STATS BAR ── */
+.statsbar{
+  position:fixed;bottom:0;left:0;right:0;height:38px;
+  background:rgba(8,6,4,.96);
+  border-top:1px solid rgba(196,147,63,.15);
+  display:flex;align-items:center;justify-content:center;gap:30px;
+  font-size:11px;backdrop-filter:blur(10px);
+}
+.si{color:rgba(255,255,255,.35);display:flex;align-items:center;gap:6px}
+.si strong{color:#E8D5B0;font-size:12px}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <span class="logo">◆ BrandIntel</span>
+  <span class="pill">Open Space · Agents IA</span>
+  <div class="tb-right">
+    <span><strong id="tActive">8</strong> actifs</span>
+    <span style="opacity:.2">·</span>
+    <span><strong id="tLines">0</strong> lignes</span>
+    <span style="opacity:.2">·</span>
+    <span><strong id="tDone">0</strong>/8 terminés</span>
+    <button class="btn" onclick="window.open('index.html')">Voir Dashboard →</button>
+  </div>
+</div>
+
+<div class="room-title">BrandIntel HQ · Étage 3 — Mission : Dashboard COMEX Hermès · Mars 2026</div>
+
+<!-- OFFICE -->
+<div class="office" id="office"></div>
+
+<!-- STATS BAR -->
+<div class="statsbar">
+  <div class="si"><div class="dot" style="background:#C4933F"></div>En cours : <strong id="sWork">8</strong></div>
+  <div class="si"><div class="dot" style="background:#22C55E"></div>Terminés : <strong id="sDone">0</strong></div>
+  <div class="si"><div class="dot" style="background:#5B9BD5"></div>Lignes : <strong id="sLines">0</strong></div>
+  <div class="si"><div class="dot" style="background:#A855F7"></div>Tâches : <strong id="sTasks">0</strong></div>
+  <div class="si"><div class="dot" style="background:#E8B96A"></div>Progression : <strong id="sPct">0%</strong></div>
+</div>
+
+<script>
+const AGENTS = [
+  {id:'ui',    name:'Agent UI',        role:'CSS · Animations', person:'👨‍🎨', color:'#C792EA',
+   lines:['@keyframes shimmer {','  background-size:200%;','}','.kpi-card:hover {','  transform:translateY(-2px);','}','✓ 387 lignes CSS']},
+  {id:'data',  name:'Agent Données',   role:'KPIs · JSON',      person:'👩‍💻', color:'#4EC994',
+   lines:["const ALL_MENTIONS = [",'  { date:"2 mars",',"    sentiment:'positif',",'    score:92 },','// 18 autres...','✓ 14 280 mentions']},
+  {id:'chart', name:'Agent Charts',    role:'Chart.js · Canvas', person:'📊', color:'#5B9BD5',
+   lines:['new Chart(ctx, {','  type:"line",','  datasets:[{','    label:"Positif",','    fill:true','  }]','✓ 11 charts init']},
+  {id:'over',  name:'Agent Overview',  role:'Hero · KPIs',      person:'🏗️',  color:'#C4933F',
+   lines:['<div class="hero">','  Score Santé: 82','  Mentions: 14 280','  SOV: 31%','</div>','✓ Overview complet']},
+  {id:'bench', name:'Agent Benchmark', role:'SOV · Concurrence', person:'🎯', color:'#F07178',
+   lines:["Hermès: '#C4933F'","LV:     '#8B1C1C'","Chanel: '#333'","Dior:   '#1E3A8A'","Gucci:  '#2D5016'",'✓ Benchmark complet']},
+  {id:'alert', name:'Agent Alertes',   role:'Monitoring · Risk', person:'🔔', color:'#F59E0B',
+   lines:['// CRITICAL #1','Prix mentions +22%','// CRITICAL #2','Service score 42/100','✓ 11 alertes OK']},
+  {id:'rep',   name:'Agent Rapports',  role:'COMEX · CSV',      person:'📋', color:'#22C55E',
+   lines:['function exportCSV() {','  const blob =','    new Blob([data],','    {type:"text/csv"}','  );','✓ Export CSV prêt']},
+  {id:'ia',    name:'Agent IA',        role:'Chat · Navigation', person:'🤖', color:'#A855F7',
+   lines:['function sendChat() {','  // typing indicator','  setTimeout(() => {','    addMsg(CR[k]);','  }, 700);','✓ Chat + Ctrl+K']},
+];
+
+let totalLines=0, totalTasks=0, doneCount=0;
+
+function build() {
+  const office = document.getElementById('office');
+  AGENTS.forEach(a => {
+    const mlines = [a.color,'rgba(255,255,255,.25)','rgba(255,255,255,.15)',a.color]
+      .map(c=>`<div class="mline" style="background:${c};width:${45+Math.random()*45}%"></div>`).join('');
+    const keys = Array(7).fill('<div class="key"></div>').join('');
+
+    const st = document.createElement('div');
+    st.className = 'station';
+    st.id = 'st-'+a.id;
+    st.innerHTML = `
+      <div class="cloud idle" id="cloud-${a.id}">// En attente...</div>
+      <div class="figure">
+        <span class="person" id="person-${a.id}">${a.person}</span>
+        <div class="desk">
+          <div class="monitor">${mlines}</div>
+          <div class="keyboard" id="kb-${a.id}">${keys}</div>
+        </div>
+      </div>
+      <div class="badge b-idle" id="badge-${a.id}">En attente</div>
+      <div class="aname">${a.name}</div>
+      <div class="arole">${a.role}</div>
+      <div class="progbar"><div class="progfill" id="pf-${a.id}" style="background:${a.color}"></div></div>
+      <div class="progpct" id="pp-${a.id}" style="color:${a.color}">0%</div>
+    `;
+    office.appendChild(st);
+  });
+}
+
+function startAgent(a, delay) {
+  setTimeout(() => {
+    const badge = document.getElementById('badge-'+a.id);
+    badge.className = 'badge b-working';
+    badge.textContent = '⚡ En cours';
+    document.getElementById('person-'+a.id).classList.add('typing');
+    const cloud = document.getElementById('cloud-'+a.id);
+    cloud.classList.remove('idle');
+    cloud.innerHTML = '';
+    feedLines(a, cloud);
+    animProg(a);
+    flashKeys(a);
+  }, delay);
+}
+
+function feedLines(a, cloud) {
+  const pool = [...a.lines];
+  let idx = 0;
+  const dur = 13000 / pool.length;
+  const tick = () => {
+    const badge = document.getElementById('badge-'+a.id);
+    if (!cloud || !badge || badge.textContent.includes('Terminé')) return;
+    const d = document.createElement('div');
+    d.className = 'cloud-line';
+    d.textContent = pool[idx % pool.length];
+    d.style.color = idx % 2 === 0 ? a.color : 'rgba(255,255,255,.55)';
+    cloud.appendChild(d);
+    while (cloud.children.length > 5) cloud.removeChild(cloud.firstChild);
+    idx++;
+    totalLines += Math.floor(Math.random()*8+3);
+    updateStats();
+    setTimeout(tick, dur + Math.random()*400-200);
+  };
+  tick();
+}
+
+function animProg(a) {
+  const steps = [10,22,35,50,63,76,88,100];
+  const dur = 14000 / steps.length;
+  let i = 0;
+  const tick = () => {
+    if (i >= steps.length) { finish(a); return; }
+    const pct = steps[i++];
+    document.getElementById('pf-'+a.id).style.width = pct+'%';
+    document.getElementById('pp-'+a.id).textContent = pct+'%';
+    setTimeout(tick, dur + Math.random()*500-250);
+  };
+  tick();
+}
+
+function flashKeys(a) {
+  const kb = document.getElementById('kb-'+a.id);
+  const badge = document.getElementById('badge-'+a.id);
+  if (!kb || !badge || badge.textContent.includes('Terminé')) return;
+  const keys = kb.querySelectorAll('.key');
+  const k = keys[Math.floor(Math.random()*keys.length)];
+  if (k) {
+    k.style.background = a.color;
+    setTimeout(()=>{ k.style.background='#222018'; }, 80);
+  }
+  setTimeout(()=>flashKeys(a), Math.random()*130+60);
+}
+
+function finish(a) {
+  const badge = document.getElementById('badge-'+a.id);
+  badge.className = 'badge b-done';
+  badge.textContent = '✓ Terminé';
+  document.getElementById('person-'+a.id).classList.remove('typing');
+  const cloud = document.getElementById('cloud-'+a.id);
+  cloud.innerHTML = `
+    <div class="cloud-line" style="color:#22C55E">✓ AGENT TERMINÉ</div>
+    <div class="cloud-line" style="color:rgba(255,255,255,.3)">// Modifications appliquées</div>
+    <div class="cloud-line" style="color:${a.color}">${a.role}</div>`;
+  doneCount++;
+  totalTasks += a.lines.length;
+  updateStats();
+}
+
+function updateStats() {
+  const active = AGENTS.length - doneCount;
+  document.getElementById('tActive').textContent = active;
+  document.getElementById('tLines').textContent = totalLines.toLocaleString('fr-FR');
+  document.getElementById('tDone').textContent = doneCount;
+  document.getElementById('sWork').textContent = active;
+  document.getElementById('sDone').textContent = doneCount;
+  document.getElementById('sLines').textContent = totalLines.toLocaleString('fr-FR');
+  document.getElementById('sTasks').textContent = totalTasks;
+  document.getElementById('sPct').textContent = Math.round(doneCount/AGENTS.length*100)+'%';
+}
+
+window.addEventListener('load', () => {
+  build();
+  AGENTS.forEach((a, i) => startAgent(a, i * 500 + 300));
+});
+</script>
+</body>
+</html>

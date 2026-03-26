@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Workspace — BrandIntel</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0B0D11;--panel:#111318;--card:#161A21;--border:#1E2330;
+  --border2:#252B3A;--t1:#E8EAF0;--t2:#8B92A5;--tm:#4A5168;
+  --accent:#C4933F;--accent-l:rgba(196,147,63,.12);
+  --pos:#22C55E;--pos-bg:rgba(34,197,94,.1);
+  --neg:#EF4444;--neg-bg:rgba(239,68,68,.1);
+  --warn:#F59E0B;--warn-bg:rgba(245,158,11,.1);
+  --blue:#3B82F6;--blue-bg:rgba(59,130,246,.1);
+  --purple:#A855F7;--purple-bg:rgba(168,85,247,.1);
+  --cyan:#06B6D4;--cyan-bg:rgba(6,182,212,.1);
+  --pink:#EC4899;--pink-bg:rgba(236,72,153,.1);
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;overflow-x:hidden}
+
+/* ── TOPBAR ── */
+.topbar{height:56px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+.tb-logo{display:flex;align-items:center;gap:10px}
+.tb-logo-icon{width:30px;height:30px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.tb-logo-text{font-size:14px;font-weight:700;color:var(--t1)}
+.tb-logo-sub{font-size:11px;color:var(--tm);margin-left:2px}
+.tb-sep{width:1px;height:20px;background:var(--border2)}
+.tb-title{font-size:13px;font-weight:600;color:var(--t2)}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.tb-status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t2)}
+.pulse{width:8px;height:8px;border-radius:50%;background:var(--pos);animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{opacity:.8;box-shadow:0 0 0 6px rgba(34,197,94,0)}}
+.tb-btn{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:inherit}
+.tb-btn.primary{background:var(--accent);color:#fff}
+.tb-btn.secondary{background:var(--card);color:var(--t2);border:1px solid var(--border2)}
+.tb-counter{background:var(--card);border:1px solid var(--border2);border-radius:6px;padding:4px 10px;font-size:12px;color:var(--t2);display:flex;align-items:center;gap:6px}
+.tb-counter span{font-weight:700;color:var(--t1)}
+
+/* ── MISSION HEADER ── */
+.mission{padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between}
+.mission-title{font-size:22px;font-weight:800;color:var(--t1);letter-spacing:-.02em}
+.mission-sub{font-size:13px;color:var(--t2);margin-top:3px}
+.mission-stats{display:flex;gap:12px}
+.stat-chip{background:var(--card);border:1px solid var(--border2);border-radius:8px;padding:8px 14px;text-align:center}
+.stat-chip .val{font-size:20px;font-weight:800;color:var(--t1)}
+.stat-chip .lbl{font-size:10px;color:var(--tm);text-transform:uppercase;letter-spacing:.06em;margin-top:1px}
+
+/* ── PROGRESS BAR GLOBAL ── */
+.global-progress{padding:16px 24px}
+.gp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.gp-label{font-size:12px;font-weight:600;color:var(--t2)}
+.gp-pct{font-size:12px;font-weight:700;color:var(--accent)}
+.gp-bar{height:4px;background:var(--border2);border-radius:2px;overflow:hidden}
+.gp-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent),#E8B96A);transition:width 1s ease;width:0}
+
+/* ── WORKSPACE GRID ── */
+.workspace{padding:0 24px 24px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:1400px){.workspace{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:1024px){.workspace{grid-template-columns:repeat(2,1fr)}}
+
+/* ── AGENT SLIDE ── */
+.agent-slide{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .2s,box-shadow .2s;cursor:pointer}
+.agent-slide:hover{border-color:var(--border2);box-shadow:0 4px 24px rgba(0,0,0,.3)}
+.agent-slide.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 4px 24px rgba(196,147,63,.15)}
+.agent-slide.done{border-color:rgba(34,197,94,.3)}
+
+/* slide header */
+.slide-head{padding:14px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.agent-avatar{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.agent-info{flex:1;min-width:0}
+.agent-name{font-size:13px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.agent-spec{font-size:11px;color:var(--t2);margin-top:1px}
+.status-badge{display:flex;align-items:center;gap:5px;padding:3px 9px;border-radius:100px;font-size:10px;font-weight:700;white-space:nowrap;flex-shrink:0}
+.sb-working{background:var(--accent-l);color:var(--accent)}
+.sb-done{background:var(--pos-bg);color:var(--pos)}
+.sb-waiting{background:var(--border2);color:var(--tm)}
+.sb-error{background:var(--neg-bg);color:var(--neg)}
+.status-dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+.sb-working .status-dot{animation:pulse-dot 1.2s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* task info */
+.slide-task{padding:10px 16px;border-bottom:1px solid var(--border)}
+.task-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--tm);margin-bottom:4px}
+.task-text{font-size:12px;color:var(--t2);line-height:1.4}
+.task-progress{margin-top:8px}
+.tp-row{display:flex;justify-content:space-between;margin-bottom:4px}
+.tp-name{font-size:11px;color:var(--tm)}
+.tp-pct{font-size:11px;font-weight:700;color:var(--t1)}
+.tp-bar{height:3px;background:var(--border2);border-radius:2px;overflow:hidden}
+.tp-fill{height:100%;border-radius:2px;transition:width 1.5s ease}
+
+/* terminal */
+.slide-terminal{flex:1;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;line-height:1.7;overflow:hidden;min-height:130px;max-height:180px;overflow-y:auto;background:#0D0F14}
+.term-line{display:flex;gap:6px;margin-bottom:1px;animation:fadein .3s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.term-time{color:var(--tm);flex-shrink:0}
+.term-cmd{color:#8B92A5}
+.term-ok{color:var(--pos)}
+.term-warn{color:var(--warn)}
+.term-info{color:var(--blue)}
+.term-accent{color:var(--accent)}
+.term-err{color:var(--neg)}
+.term-purple{color:var(--purple)}
+.term-cyan{color:var(--cyan)}
+.cursor{display:inline-block;width:6px;height:12px;background:var(--accent);margin-left:2px;animation:blink .8s step-end infinite;vertical-align:middle}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* slide footer */
+.slide-foot{padding:9px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.foot-meta{font-size:10px;color:var(--tm)}
+.foot-tag{display:flex;gap:5px}
+.ftag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px}
+
+/* ── MERGE PANEL ── */
+.merge-row{padding:0 24px 24px}
+.merge-card{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:18px 22px;display:flex;align-items:center;gap:20px}
+.merge-icon{width:44px;height:44px;background:var(--accent-l);border:1px solid rgba(196,147,63,.2);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.merge-title{font-size:15px;font-weight:700;color:var(--t1)}
+.merge-sub{font-size:12px;color:var(--t2);margin-top:2px}
+.merge-agents{display:flex;gap:-6px;margin-left:auto}
+.ma-dot{width:26px;height:26px;border-radius:50%;border:2px solid var(--card);display:flex;align-items:center;justify-content:center;font-size:12px;margin-left:-6px}
+.merge-btn{padding:9px 20px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px;white-space:nowrap;margin-left:16px;flex-shrink:0}
+.merge-btn:hover{background:#B8832E}
+.merge-progress{display:flex;align-items:center;gap:12px;flex:1}
+.merge-step{display:flex;align-items:center;gap:6px;font-size:11px}
+.mstep-dot{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0}
+.mstep-dot.done{background:var(--pos-bg);color:var(--pos)}
+.mstep-dot.active{background:var(--accent-l);color:var(--accent)}
+.mstep-dot.todo{background:var(--border2);color:var(--tm)}
+.mstep-line{width:24px;height:1px;background:var(--border2)}
+.mstep-line.done{background:var(--pos)}
+
+/* ── DETAIL PANEL (modal) ── */
+.detail-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(4px)}
+.detail-overlay.open{display:flex}
+.detail-panel{background:var(--panel);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:760px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden}
+.dp-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.dp-close{margin-left:auto;background:var(--card);border:1px solid var(--border2);border-radius:6px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t2);font-size:14px}
+.dp-body{flex:1;overflow-y:auto;padding:20px}
+.dp-terminal{background:#0D0F14;border-radius:10px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.8;height:300px;overflow-y:auto;margin-bottom:16px}
+.dp-output{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px}
+.dp-output-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--tm);margin-bottom:10px}
+.dp-file-preview{font-family:'JetBrains Mono',monospace;font-size:11px;color:#A8B2CC;line-height:1.7;max-height:180px;overflow-y:auto}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+::-webkit-scrollbar-thumb:hover{background:var(--tm)}
+
+/* ── OPEN/CLOSE DASHBOARD ── */
+.launch-btn{position:fixed;bottom:20px;right:20px;background:var(--accent);color:#fff;border:none;border-radius:12px;padding:12px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(196,147,63,.4);z-index:50;transition:transform .15s}
+.launch-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(196,147,63,.5)}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-logo">
+    <div class="tb-logo-icon">◆</div>
+    <div>
+      <div class="tb-logo-text">BrandIntel <span class="tb-logo-sub">· Agent Workspace</span></div>
+    </div>
+  </div>
+  <div class="tb-sep"></div>
+  <div class="tb-title">Mission : Dashboard COMEX Hermès · Mars 2026</div>
+  <div class="tb-right">
+    <div class="tb-counter"><span id="doneCount">0</span> / 8 agents terminés</div>
+    <div class="tb-status"><div class="pulse"></div><span id="statusText">Agents en cours d'exécution...</span></div>
+    <button class="tb-btn secondary" onclick="resetAll()">↺ Réinitialiser</button>
+    <button class="tb-btn primary" onclick="window.open('index.html')">Voir le Dashboard →</button>
+  </div>
+</div>
+
+<!-- MISSION HEADER -->
+<div class="mission">
+  <div>
+    <div class="mission-title">Open Space — Agents IA</div>
+    <div class="mission-sub">Suivi en temps réel des agents construisant votre dashboard BrandIntel</div>
+  </div>
+  <div class="mission-stats">
+    <div class="stat-chip"><div class="val" id="activeCount">8</div><div class="lbl">Actifs</div></div>
+    <div class="stat-chip"><div class="val" id="linesCount">0</div><div class="lbl">Lignes écrites</div></div>
+    <div class="stat-chip"><div class="val" id="tasksCount">0</div><div class="lbl">Tâches done</div></div>
+  </div>
+</div>
+
+<!-- GLOBAL PROGRESS -->
+<div class="global-progress">
+  <div class="gp-head">
+    <div class="gp-label">Progression globale du build</div>
+    <div class="gp-pct" id="globalPct">0%</div>
+  </div>
+  <div class="gp-bar"><div class="gp-fill" id="globalFill"></div></div>
+</div>
+
+<!-- WORKSPACE -->
+<div class="workspace" id="workspace"></div>
+
+<!-- MERGE PANEL -->
+<div class="merge-row">
+  <div class="merge-card">
+    <div class="merge-icon">⚡</div>
+    <div>
+      <div class="merge-title">Fusion & Déploiement</div>
+      <div class="merge-sub">Assembler les contributions de tous les agents dans index.html</div>
+    </div>
+    <div class="merge-progress" id="mergeSteps"></div>
+    <div class="merge-agents" id="mergeAvatars"></div>
+    <button class="merge-btn" onclick="mergeAll()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      Fusionner & Lancer
+    </button>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="detail-overlay" id="detailOverlay" onclick="closeDetail(event)">
+  <div class="detail-panel" id="detailPanel">
+    <div class="dp-head">
+      <div class="agent-avatar" id="dpAvatar" style="width:36px;height:36px;border-radius:9px;font-size:17px;display:flex;align-items:center;justify-content:center"></div>
+      <div>
+        <div style="font-size:15px;font-weight:700;color:var(--t1)" id="dpName"></div>
+        <div style="font-size:12px;color:var(--t2)" id="dpSpec"></div>
+      </div>
+      <div id="dpBadge" style="margin-left:10px"></div>
+      <div class="dp-close" onclick="document.getElementById('detailOverlay').classList.remove('open')">✕</div>
+    </div>
+    <div class="dp-body">
+      <div class="dp-terminal" id="dpTerminal"></div>
+      <div class="dp-output">
+        <div class="dp-output-title">Sortie · Fichier généré</div>
+        <div class="dp-file-preview" id="dpPreview"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LAUNCH BUTTON -->
+<button class="launch-btn" onclick="window.open('index.html')">
+  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+  Ouvrir le Dashboard
+</button>
+
+<script>
+// ── AGENT DEFINITIONS ─────────────────────────────────────────────────────────
+const AGENTS = [
+  {
+    id:'ui',
+    name:'Agent UI/Design',
+    spec:'CSS · Layout · Dark mode',
+    emoji:'🎨',
+    color:'var(--purple)',
+    colorBg:'var(--purple-bg)',
+    tags:['CSS','Layout'],
+    tasks:['Analyse des références visuelles','Définition des variables CSS','Construction du système de grilles','Sidebar & topbar','Thème dark mode','Animations & transitions'],
+    logs:[
+      {t:'09:14:02',cls:'term-info',txt:'→ Analyse images références (Codename, Crextio, Analytics)'},
+      {t:'09:14:08',cls:'term-accent',txt:'✦ Palette extraite: #F8F7F4 · #1A1614 · #C4933F'},
+      {t:'09:14:15',cls:'term-ok',txt:'✓ Variables CSS root générées (42 variables)'},
+      {t:'09:14:22',cls:'term-purple',txt:'⬡ Système de grilles: kpi-grid, g2, g3, g4, g21, g12'},
+      {t:'09:14:30',cls:'term-ok',txt:'✓ Sidebar 240px — nav-item active states'},
+      {t:'09:14:38',cls:'term-accent',txt:'✦ Topbar sticky — search, filters, CTA buttons'},
+      {t:'09:14:45',cls:'term-ok',txt:'✓ Composants: card, badge, progress, toggle, ins'},
+      {t:'09:14:52',cls:'term-info',txt:'→ Dark mode [data-dark] — 12 overrides'},
+      {t:'09:14:59',cls:'term-ok',txt:'✓ Animations: count-up, sparkline, fadein, blink'},
+      {t:'09:15:06',cls:'term-ok',txt:'✓ Responsive @media 768px — sidebar collapse'},
+      {t:'09:15:10',cls:'term-ok',txt:'✓ DONE — 387 lignes CSS exportées'},
+    ],
+    preview:`/* BrandIntel CSS System */\n:root {\n  --bg: #F8F7F4;\n  --card: #FFFFFF;\n  --sidebar: #1A1614;\n  --accent: #C4933F;\n  --border: #EEECE8;\n  /* ... 38 other vars */\n}\n.card {\n  background: var(--card);\n  border-radius: 16px;\n  box-shadow: 0 1px 3px rgba(26,22,20,.06);\n  padding: 20px;\n}\n.kpi-grid {\n  display: grid;\n  grid-template-columns: repeat(5,1fr);\n  gap: 14px;\n}`,
+    duration: 14000,
+    progressSteps:[10,25,40,55,70,85,100],
+  },
+  {
+    id:'data',
+    name:'Agent Données',
+    spec:'KPIs · Verbatims · JSON',
+    emoji:'📊',
+    color:'var(--accent)',
+    colorBg:'var(--accent-l)',
+    tags:['KPIs','JSON'],
+    tasks:['Définition des métriques COMEX','Génération des 20 verbatims','Calcul scores et tendances','Construction SEARCH_INDEX','Dataset mentions Mars 2026'],
+    logs:[
+      {t:'09:14:05',cls:'term-info',txt:'→ Initialisation dataset Hermès Mars 2026'},
+      {t:'09:14:12',cls:'term-accent',txt:'✦ Brand Health Score: 82/100 (+3 pts)'},
+      {t:'09:14:18',cls:'term-accent',txt:'✦ Total mentions: 14 280 (+8%)'},
+      {t:'09:14:24',cls:'term-accent',txt:'✦ Sentiment positif: 68% · négatif: 14%'},
+      {t:'09:14:31',cls:'term-accent',txt:'✦ Part de voix: 31% (Hermès #1)'},
+      {t:'09:14:38',cls:'term-ok',txt:'✓ 20 verbatims générés (2 mars → 21 mars)'},
+      {t:'09:14:46',cls:'term-ok',txt:'✓ Scores calculés: min 15, max 97'},
+      {t:'09:14:53',cls:'term-ok',txt:'✓ SEARCH_INDEX — 9 entrées indexées'},
+      {t:'09:14:59',cls:'term-ok',txt:'✓ Sources: Reddit 32%, Blogs 28%, Forums 20%'},
+      {t:'09:15:05',cls:'term-ok',txt:'✓ DONE — ALL_MENTIONS[20] exporté'},
+    ],
+    preview:`const ALL_MENTIONS = [\n  { id:1, date:'2 mars',\n    source:'Reddit',\n    text:'Le Birkin reste l\\'objet de désir ultime...',\n    sentiment:'positif',\n    theme:'Exclusivité', score:92 },\n  { id:2, date:'3 mars',\n    source:'Trustpilot',\n    text:'Service en boutique décevant...',\n    sentiment:'négatif',\n    theme:'Service', score:28 },\n  // ... 18 autres verbatims\n];`,
+    duration: 12000,
+    progressSteps:[15,30,50,65,80,100],
+  },
+  {
+    id:'charts',
+    name:'Agent Charts',
+    spec:'Chart.js · Sparklines · Canvas',
+    emoji:'📈',
+    color:'var(--blue)',
+    colorBg:'var(--blue-bg)',
+    tags:['Chart.js','Canvas'],
+    tasks:['Sentiment over time (line area)','Distribution thèmes (horizontal bar)','SOV donut & Sources donut','Radar concurrence (3 marques)','Évolution 6 mois (brand health)','Stacked bar produits','Sparklines KPIs','Timeline mentions'],
+    logs:[
+      {t:'09:14:10',cls:'term-info',txt:'→ Chart.js 4.4.0 CDN chargé'},
+      {t:'09:14:17',cls:'term-blue',txt:'⬡ sentimentChart — line area 31 jours'},
+      {t:'09:14:24',cls:'term-blue',txt:'⬡ themesChart — horizontal bar 8 thèmes'},
+      {t:'09:14:31',cls:'term-blue',txt:'⬡ sovChart — doughnut 5 marques (cutout 65%)'},
+      {t:'09:14:39',cls:'term-blue',txt:'⬡ sourcesChart — doughnut sources'},
+      {t:'09:14:47',cls:'term-ok',txt:'✓ gaugeChart — doughnut arc 220°'},
+      {t:'09:14:54',cls:'term-ok',txt:'✓ radarChart — 6 axes · 3 datasets'},
+      {t:'09:15:01',cls:'term-ok',txt:'✓ healthEvol — line fill Oct→Mars'},
+      {t:'09:15:08',cls:'term-ok',txt:'✓ productChart — stacked bar 5 produits'},
+      {t:'09:15:13',cls:'term-ok',txt:'✓ sovLineChart — multi-line 5 semaines'},
+      {t:'09:15:18',cls:'term-ok',txt:'✓ sparklines sp1→sp4 — micro charts'},
+      {t:'09:15:22',cls:'term-ok',txt:'✓ DONE — 11 charts initialisés (lazy)'},
+    ],
+    preview:`// Lazy chart initialization\nconst initializedPages = new Set();\n\nfunction initOverview() {\n  // Sentiment over time\n  new Chart(document.getElementById('sentimentChart'), {\n    type: 'line',\n    data: { labels: days,\n      datasets: [\n        { label:'Positif', data: pos,\n          borderColor:'#16A34A',\n          fill: true, tension: .4 },\n        { label:'Négatif', data: neg,\n          borderColor:'#DC2626' }\n      ]\n    }\n  });\n}`,
+    duration: 16000,
+    progressSteps:[8,20,35,50,62,75,88,100],
+  },
+  {
+    id:'overview',
+    name:'Agent Overview',
+    spec:'Hero · KPIs · Insights',
+    emoji:'🏠',
+    color:'var(--cyan)',
+    colorBg:'var(--cyan-bg)',
+    tags:['Hero','KPI'],
+    tasks:['Hero band COMEX','5 KPI cards animées','Insight cards (gold/red/green)','Grille 3 donuts','Row insights/alertes/concurrent'],
+    logs:[
+      {t:'09:14:08',cls:'term-info',txt:'→ Construction page Overview'},
+      {t:'09:14:16',cls:'term-cyan',txt:'⬡ Hero band — sidebar dark #1A1614'},
+      {t:'09:14:23',cls:'term-cyan',txt:'⬡ 5 KPI cards — countUp animation'},
+      {t:'09:14:30',cls:'term-ok',txt:'✓ k1=82, k2=14280, k3=68, k4=31, k5=14'},
+      {t:'09:14:37',cls:'term-cyan',txt:'⬡ Sentiment chart + insight panel (g2)'},
+      {t:'09:14:45',cls:'term-ok',txt:'✓ Insight cards: gold · red · green · yellow'},
+      {t:'09:14:52',cls:'term-ok',txt:'✓ Grille themes + sources + SOV donuts'},
+      {t:'09:14:58',cls:'term-ok',txt:'✓ Row: top insight · alerte · concurrent Dior'},
+      {t:'09:15:03',cls:'term-ok',txt:'✓ DONE — page-overview complète'},
+    ],
+    preview:`<!-- Overview Hero -->\n<div class="hero-band">\n  <div>\n    <h1>Bonjour, équipe COMEX</h1>\n    <p>Intelligence de marque · Mars 2026</p>\n  </div>\n  <div class="hero-badge">● Actualisé il y a 2 min</div>\n</div>\n\n<!-- KPI Grid -->\n<div class="kpi-grid">\n  <div class="kpi-card">\n    <div class="kpi-label">Score Santé Marque</div>\n    <div class="kpi-val">\n      <span id="k1">82</span>/100\n    </div>\n  </div>\n  <!-- x5 -->\n</div>`,
+    duration: 11000,
+    progressSteps:[20,40,60,80,100],
+  },
+  {
+    id:'competitive',
+    name:'Agent Concurrence',
+    spec:'Benchmark · SOV · Win/Lose',
+    emoji:'🎯',
+    color:'var(--neg)',
+    colorBg:'var(--neg-bg)',
+    tags:['Benchmark','Table'],
+    tasks:['Tableau comparatif 5 marques','Line chart SOV évolution','Win/Lose card (Hermès)','Contextes de comparaison','Couleurs identitaires marques'],
+    logs:[
+      {t:'09:14:14',cls:'term-info',txt:'→ Construction page Concurrence'},
+      {t:'09:14:21',cls:'term-err',txt:'⬡ Mapping couleurs — Hermès #C4933F'},
+      {t:'09:14:28',cls:'term-err',txt:'⬡ LV #8B1C1C · Chanel #333 · Dior #1E3A8A'},
+      {t:'09:14:35',cls:'term-ok',txt:'✓ Tableau 5 marques — bdot + progress + badge'},
+      {t:'09:14:42',cls:'term-ok',txt:'✓ sovLineChart — 5 semaines · 4 datasets'},
+      {t:'09:14:50',cls:'term-ok',txt:'✓ Win/Lose card — grille 2 colonnes'},
+      {t:'09:14:57',cls:'term-ok',txt:'✓ Contextes comparaison — 4 rows table'},
+      {t:'09:15:02',cls:'term-ok',txt:'✓ DONE — page-competitive complète'},
+    ],
+    preview:`<!-- Competitor Table -->\n<table class="tbl">\n  <thead>\n    <tr><th>Marque</th><th>Mentions</th>\n    <th>Sentiment</th><th>SOV</th></tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td><span class="bdot"\n        style="background:var(--hermes)">\n      </span><strong>Hermès</strong></td>\n      <td>14 280</td>\n      <td><span class="badge bp">68%</span></td>\n      <td>31%</td>\n    </tr>\n  </tbody>\n</table>`,
+    duration: 13000,
+    progressSteps:[20,40,60,80,100],
+  },
+  {
+    id:'alerts',
+    name:'Agent Alertes',
+    spec:'Monitoring · Alertes · Risques',
+    emoji:'🔔',
+    color:'var(--warn)',
+    colorBg:'var(--warn-bg)',
+    tags:['Alertes','KPIs'],
+    tasks:['3 KPI cards (critique/modéré/opportunité)','2 alertes critiques','5 alertes modérées','4 opportunités identifiées','Badges nav avec counter'],
+    logs:[
+      {t:'09:14:20',cls:'term-info',txt:'→ Construction page Alertes'},
+      {t:'09:14:27',cls:'term-warn',txt:'⬡ Alert critique #1 — Prix +22%'},
+      {t:'09:14:34',cls:'term-warn',txt:'⬡ Alert critique #2 — Service 42/100'},
+      {t:'09:14:41',cls:'term-warn',txt:'⬡ 5 alertes modérées générées'},
+      {t:'09:14:49',cls:'term-ok',txt:'✓ 4 opportunités identifiées'},
+      {t:'09:14:55',cls:'term-ok',txt:'✓ KPI cards: 2 crit / 5 mod / 4 opp'},
+      {t:'09:14:59',cls:'term-ok',txt:'✓ nav-badge rouge "7" injecté sidebar'},
+      {t:'09:15:04',cls:'term-ok',txt:'✓ DONE — page-alertes complète'},
+    ],
+    preview:`<!-- Alert Critical -->\n<div class="al-row crit">\n  <div class="al-ico">🔴</div>\n  <div class="al-body">\n    <h4>Mentions négatives prix en hausse</h4>\n    <p>+22% cette semaine — seuil critique</p>\n  </div>\n  <span class="al-date">18 mars</span>\n  <button class="btn-ghost">Voir →</button>\n</div>\n\n<!-- Opportunity -->\n<div class="al-row opp">\n  <div class="al-ico">🟢</div>\n  <div class="al-body">\n    <h4>Artisanat = levier #1</h4>\n    <p>Score désirabilité 94/100</p>\n  </div>\n</div>`,
+    duration: 10000,
+    progressSteps:[25,50,75,100],
+  },
+  {
+    id:'rapport',
+    name:'Agent Rapports',
+    spec:'COMEX Memo · Export · PDF',
+    emoji:'📋',
+    color:'var(--pos)',
+    colorBg:'var(--pos-bg)',
+    tags:['PDF','Export'],
+    tasks:['Form de configuration rapport','Mémo COMEX pré-rempli (5 sections)','Fonctions copyReport/exportCSV','Boutons export PDF et Copier','Page Paramètres (4 panels)'],
+    logs:[
+      {t:'09:14:12',cls:'term-info',txt:'→ Construction page Rapport COMEX'},
+      {t:'09:14:20',cls:'term-ok',txt:'✓ Form: période · type · marques · destinataires'},
+      {t:'09:14:28',cls:'term-ok',txt:'✓ Section 1 — Faits saillants'},
+      {t:'09:14:35',cls:'term-ok',txt:'✓ Section 2 — Analyse concurrentielle'},
+      {t:'09:14:42',cls:'term-ok',txt:'✓ Section 3 — Risques identifiés'},
+      {t:'09:14:49',cls:'term-ok',txt:'✓ Section 4 — Opportunités'},
+      {t:'09:14:56',cls:'term-ok',txt:'✓ Section 5 — Recommandations'},
+      {t:'09:15:02',cls:'term-ok',txt:'✓ exportCSV() — Blob UTF-8 BOM'},
+      {t:'09:15:07',cls:'term-ok',txt:'✓ DONE — page-rapport + page-parametres'},
+    ],
+    preview:`function exportCSV() {\n  const header = 'Date,Source,Verbatim,...\\n';\n  const rows = ALL_MENTIONS\n    .map(m => [m.date, m.source,\n      '"'+m.text+'"',\n      m.sentiment, m.theme, m.score\n    ].join(','))\n    .join('\\n');\n  const blob = new Blob(\n    ['\\uFEFF' + header + rows],\n    { type: 'text/csv;charset=utf-8;' }\n  );\n  const a = document.createElement('a');\n  a.href = URL.createObjectURL(blob);\n  a.download = 'brandIntel_mars2026.csv';\n  a.click();\n}`,
+    duration: 15000,
+    progressSteps:[15,30,45,60,72,85,100],
+  },
+  {
+    id:'ia',
+    name:'Agent IA Chat',
+    spec:'Assistant · Réponses · Navigation',
+    emoji:'🤖',
+    color:'var(--pink)',
+    colorBg:'var(--pink-bg)',
+    tags:['Chat','NLP'],
+    tasks:['Interface chat avec historique','5 quick actions pré-définies','Dictionnaire réponses CR{}','Fonction sendChat & quickChat','Recherche globale + dropdown','Navigation nav() lazy init'],
+    logs:[
+      {t:'09:14:16',cls:'term-info',txt:'→ Construction page Exploration IA'},
+      {t:'09:14:24',cls:'term-purple',txt:'⬡ Chat interface — 460px height'},
+      {t:'09:14:31',cls:'term-purple',txt:'⬡ 5 quick actions: risques · concurrents...'},
+      {t:'09:14:39',cls:'term-ok',txt:'✓ CR{} — 5 réponses pré-chargées'},
+      {t:'09:14:46',cls:'term-ok',txt:'✓ Pre-loaded: 2 échanges exemple'},
+      {t:'09:14:53',cls:'term-ok',txt:'✓ sendChat() — keyword matching'},
+      {t:'09:14:59',cls:'term-ok',txt:'✓ globalSearch() — SEARCH_INDEX[9]'},
+      {t:'09:15:05',cls:'term-ok',txt:'✓ nav() — lazy init + scroll to top'},
+      {t:'09:15:09',cls:'term-ok',txt:'✓ DONE — page-ia + search + navigation'},
+    ],
+    preview:`// Chat response dictionary\nconst CR = {\n  risques: '<strong>Risques :</strong>' +\n    '<br>① Prix +22% mentions neg...',\n  concurrents: '<strong>Résumé concurrentiel</strong>' +\n    '<br>LV (27%) en hausse...',\n  synthese: '...',\n  opportunites: '...',\n  service: '...'\n};\n\nfunction sendChat() {\n  const q = chatInput.value.trim();\n  addMsg(q, 'user');\n  const k = Object.keys(CR)\n    .find(k => q.includes(kw[k]));\n  setTimeout(() => addMsg(CR[k], 'ai'), 700);\n}`,
+    duration: 12000,
+    progressSteps:[15,35,55,70,85,100],
+  },
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let agentState = {};
+let globalInterval = null;
+let totalLines = 0;
+let totalTasks = 0;
+
+// ── BUILD WORKSPACE ───────────────────────────────────────────────────────────
+function buildWorkspace() {
+  const ws = document.getElementById('workspace');
+  ws.innerHTML = '';
+  AGENTS.forEach(agent => {
+    agentState[agent.id] = { progress: 0, currentTask: 0, logIndex: 0, done: false };
+    const slide = document.createElement('div');
+    slide.className = 'agent-slide';
+    slide.id = 'slide-' + agent.id;
+    slide.onclick = () => openDetail(agent.id);
+    slide.innerHTML = `
+      <div class="slide-head">
+        <div class="agent-avatar" style="background:${agent.colorBg};color:${agent.color}">${agent.emoji}</div>
+        <div class="agent-info">
+          <div class="agent-name">${agent.name}</div>
+          <div class="agent-spec">${agent.spec}</div>
+        </div>
+        <div class="status-badge sb-waiting" id="badge-${agent.id}"><div class="status-dot"></div>En attente</div>
+      </div>
+      <div class="slide-task">
+        <div class="task-label">Tâche en cours</div>
+        <div class="task-text" id="task-${agent.id}">Initialisation...</div>
+        <div class="task-progress">
+          <div class="tp-row"><span class="tp-name">Progression</span><span class="tp-pct" id="pct-${agent.id}">0%</span></div>
+          <div class="tp-bar"><div class="tp-fill" id="fill-${agent.id}" style="background:${agent.color};width:0%"></div></div>
+        </div>
+      </div>
+      <div class="slide-terminal" id="term-${agent.id}">
+        <div class="term-line"><span class="term-time">--:--:--</span><span class="term-cmd">Waiting to start...</span></div>
+      </div>
+      <div class="slide-foot">
+        <div class="foot-meta" id="foot-${agent.id}">0 lignes générées</div>
+        <div class="foot-tag">${agent.tags.map(t=>`<span class="ftag" style="background:${agent.colorBg};color:${agent.color}">${t}</span>`).join('')}</div>
+      </div>`;
+    ws.appendChild(slide);
+  });
+  buildMergeSteps();
+  buildMergeAvatars();
+}
+
+function buildMergeSteps() {
+  const steps = ['Analyse','CSS','HTML','JS','Charts','Merge','Test','Deploy'];
+  document.getElementById('mergeSteps').innerHTML = steps.map((s,i) => `
+    <div class="merge-step">
+      <div class="mstep-dot todo" id="msdot-${i}">${i+1}</div>
+      ${i < steps.length-1 ? `<div class="mstep-line" id="msline-${i}"></div>` : ''}
+      <span style="font-size:10px;color:var(--tm);white-space:nowrap">${s}</span>
+    </div>`).join('');
+}
+
+function buildMergeAvatars() {
+  document.getElementById('mergeAvatars').innerHTML = AGENTS.map(a =>
+    `<div class="ma-dot" style="background:${a.colorBg};color:${a.color};font-size:13px">${a.emoji}</div>`
+  ).join('');
+}
+
+// ── RUN AGENTS ────────────────────────────────────────────────────────────────
+function startAgents() {
+  AGENTS.forEach((agent, idx) => {
+    const delay = idx * 800;
+    setTimeout(() => startAgent(agent), delay);
+  });
+}
+
+function startAgent(agent) {
+  const state = agentState[agent.id];
+  const badge = document.getElementById('badge-' + agent.id);
+  badge.className = 'status-badge sb-working';
+  badge.innerHTML = '<div class="status-dot"></div>En cours';
+  document.getElementById('slide-' + agent.id).classList.add('active');
+
+  // Log lines
+  let logIdx = 0;
+  const logInterval = agent.duration / agent.logs.length;
+
+  const addLog = () => {
+    if (logIdx >= agent.logs.length) return;
+    const log = agent.logs[logIdx];
+    const term = document.getElementById('term-' + agent.id);
+    const line = document.createElement('div');
+    line.className = 'term-line';
+    line.innerHTML = `<span class="term-time">${log.t}</span><span class="${log.cls}">${log.txt}</span>`;
+    term.appendChild(line);
+    term.scrollTop = term.scrollHeight;
+    logIdx++;
+    totalLines += Math.floor(Math.random() * 12) + 4;
+    document.getElementById('linesCount').textContent = totalLines.toLocaleString('fr-FR');
+    setTimeout(addLog, logInterval + Math.random() * 400 - 200);
+  };
+  addLog();
+
+  // Progress
+  let stepIdx = 0;
+  const stepDuration = agent.duration / agent.progressSteps.length;
+  const updateProgress = () => {
+    if (stepIdx >= agent.progressSteps.length) {
+      finishAgent(agent);
+      return;
+    }
+    const pct = agent.progressSteps[stepIdx];
+    document.getElementById('fill-' + agent.id).style.width = pct + '%';
+    document.getElementById('pct-' + agent.id).textContent = pct + '%';
+    if (stepIdx < agent.tasks.length) {
+      document.getElementById('task-' + agent.id).textContent = agent.tasks[stepIdx];
+    }
+    stepIdx++;
+    setTimeout(updateProgress, stepDuration + Math.random() * 600 - 300);
+  };
+  setTimeout(updateProgress, 400);
+}
+
+function finishAgent(agent) {
+  const state = agentState[agent.id];
+  state.done = true;
+  const badge = document.getElementById('badge-' + agent.id);
+  badge.className = 'status-badge sb-done';
+  badge.innerHTML = '<div class="status-dot"></div>Terminé ✓';
+  const slide = document.getElementById('slide-' + agent.id);
+  slide.classList.remove('active');
+  slide.classList.add('done');
+  document.getElementById('task-' + agent.id).textContent = '✓ ' + agent.tasks[agent.tasks.length - 1];
+  const linesGenerated = Math.floor(Math.random() * 120) + 80;
+  document.getElementById('foot-' + agent.id).textContent = linesGenerated + ' lignes générées';
+  totalTasks++;
+  document.getElementById('tasksCount').textContent = totalTasks;
+
+  // Add final log
+  const term = document.getElementById('term-' + agent.id);
+  const cursor = document.createElement('div');
+  cursor.className = 'term-line';
+  cursor.innerHTML = `<span class="term-time">${new Date().toTimeString().slice(0,8)}</span><span class="term-ok">✓ AGENT TERMINÉ — prêt pour fusion</span>`;
+  term.appendChild(cursor);
+
+  // Update global counter
+  const doneCount = Object.values(agentState).filter(s => s.done).length;
+  document.getElementById('doneCount').textContent = doneCount;
+  document.getElementById('activeCount').textContent = AGENTS.length - doneCount;
+
+  // Update global progress
+  const globalPct = Math.round((doneCount / AGENTS.length) * 100);
+  document.getElementById('globalFill').style.width = globalPct + '%';
+  document.getElementById('globalPct').textContent = globalPct + '%';
+
+  // Update merge steps
+  const stepIdx = Math.floor((doneCount / AGENTS.length) * 8);
+  for (let i = 0; i < stepIdx; i++) {
+    const dot = document.getElementById('msdot-' + i);
+    if (dot) { dot.className = 'mstep-dot done'; dot.textContent = '✓'; }
+    const line = document.getElementById('msline-' + i);
+    if (line) line.classList.add('done');
+  }
+  const activeDot = document.getElementById('msdot-' + stepIdx);
+  if (activeDot) activeDot.className = 'mstep-dot active';
+
+  if (doneCount === AGENTS.length) {
+    document.getElementById('statusText').textContent = '✓ Tous les agents ont terminé — prêt pour fusion';
+    document.getElementById('activeCount').textContent = '0';
+  }
+}
+
+// ── DETAIL MODAL ──────────────────────────────────────────────────────────────
+function openDetail(id) {
+  const agent = AGENTS.find(a => a.id === id);
+  if (!agent) return;
+  document.getElementById('dpAvatar').textContent = agent.emoji;
+  document.getElementById('dpAvatar').style.background = agent.colorBg;
+  document.getElementById('dpAvatar').style.color = agent.color;
+  document.getElementById('dpName').textContent = agent.name;
+  document.getElementById('dpSpec').textContent = agent.spec;
+  const state = agentState[id];
+  const badgeEl = document.getElementById('dpBadge');
+  badgeEl.innerHTML = state.done
+    ? `<div class="status-badge sb-done"><div class="status-dot"></div>Terminé</div>`
+    : `<div class="status-badge sb-working"><div class="status-dot"></div>En cours</div>`;
+  // Clone terminal content
+  const srcTerm = document.getElementById('term-' + id);
+  document.getElementById('dpTerminal').innerHTML = srcTerm ? srcTerm.innerHTML : '';
+  document.getElementById('dpPreview').textContent = agent.preview;
+  document.getElementById('detailOverlay').classList.add('open');
+}
+
+function closeDetail(e) {
+  if (e.target === document.getElementById('detailOverlay')) {
+    document.getElementById('detailOverlay').classList.remove('open');
+  }
+}
+
+// ── MERGE ─────────────────────────────────────────────────────────────────────
+function mergeAll() {
+  const btn = document.querySelector('.merge-btn');
+  btn.innerHTML = '⏳ Fusion en cours...';
+  btn.disabled = true;
+  btn.style.opacity = '.7';
+  setTimeout(() => {
+    // Mark all merge steps done
+    for (let i = 0; i < 8; i++) {
+      const dot = document.getElementById('msdot-' + i);
+      if (dot) { dot.className = 'mstep-dot done'; dot.textContent = '✓'; }
+      const line = document.getElementById('msline-' + i);
+      if (line) line.classList.add('done');
+    }
+    document.getElementById('globalFill').style.width = '100%';
+    document.getElementById('globalPct').textContent = '100%';
+    btn.innerHTML = '✓ Dashboard prêt — Ouvrir →';
+    btn.style.opacity = '1';
+    btn.disabled = false;
+    btn.onclick = () => window.open('index.html');
+  }, 2400);
+}
+
+// ── RESET ─────────────────────────────────────────────────────────────────────
+function resetAll() {
+  agentState = {};
+  totalLines = 0;
+  totalTasks = 0;
+  document.getElementById('linesCount').textContent = '0';
+  document.getElementById('tasksCount').textContent = '0';
+  document.getElementById('doneCount').textContent = '0';
+  document.getElementById('activeCount').textContent = '8';
+  document.getElementById('globalFill').style.width = '0%';
+  document.getElementById('globalPct').textContent = '0%';
+  document.getElementById('statusText').textContent = 'Agents en cours d\'exécution...';
+  buildWorkspace();
+  setTimeout(startAgents, 500);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  buildWorkspace();
+  setTimeout(startAgents, 800);
+});
+</script>
+</body>
+</html>
