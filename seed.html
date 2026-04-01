@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Seed Database — Brand Intelligence</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+  body { font-family: 'Inter', monospace; background: #1a1a1a; color: #eee; padding: 40px; }
+  h1 { margin-bottom: 20px; }
+  #log { background: #111; padding: 20px; border-radius: 8px; white-space: pre-wrap; font-size: 13px; max-height: 70vh; overflow-y: auto; }
+  button { padding: 12px 28px; font-size: 16px; border: none; border-radius: 8px; background: #D93636; color: #fff; cursor: pointer; margin-bottom: 20px; font-weight: 600; }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+</style>
+</head>
+<body>
+<h1>Seed Supabase Database</h1>
+<button id="btn" onclick="runSeed()">Run Seed (200 rows / table)</button>
+<div id="log">Ready. Click the button to seed your database.\n</div>
+<script src="seed.js"></script>
+<script>
+  // Override seed() to write to the log panel
+  const logEl = document.getElementById('log');
+  const origLog = console.log;
+  const origErr = console.error;
+  console.log = (...args) => { logEl.textContent += args.join(' ') + '\n'; logEl.scrollTop = logEl.scrollHeight; origLog(...args); };
+  console.error = (...args) => { logEl.textContent += '❌ ' + args.join(' ') + '\n'; logEl.scrollTop = logEl.scrollHeight; origErr(...args); };
+
+  async function runSeed() {
+    document.getElementById('btn').disabled = true;
+    logEl.textContent = 'Starting seed...\n';
+    await seed();
+    document.getElementById('btn').disabled = false;
+  }
+</script>
+</body>
+</html>

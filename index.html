@@ -6,6 +6,8 @@
 <title>Brand Intelligence Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="supabase-config.js"></script>
 <style>
 :root{
   --bg:#EEECEA;
@@ -154,7 +156,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:#1a1a1a;display:f
   <nav class="nav">
     <div class="nav-logo"><svg viewBox="0 0 28 28" fill="none"><path d="M4 24L10 4h4L8 24H4z" fill="#D93636"/><path d="M12 24L18 4h4L16 24h-4z" fill="#D93636"/></svg></div>
     <div class="tab on">Dashboard</div>
-    <div class="tab">Sentiment</div>
+    <a href="sentiment.html" class="tab" style="text-decoration:none">Sentiment</a>
     <div class="tab">Share of Voice</div>
     <div class="tab">Competitors</div>
     <div class="tab">Crisis Alert</div>
@@ -218,10 +220,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:#1a1a1a;display:f
       </div>
 
       <!-- Floating labels -->
-      <div class="fl" style="left:52%;top:6%"><b>21.7k Conversations</b><span>Germany</span></div>
-      <div class="fl" style="left:38%;top:28%"><b>18.5k Conversations</b><span>France</span></div>
-      <div class="fl" style="left:60%;bottom:24%"><b>20.8k Conversations</b><span>China</span></div>
-      <div class="fl" style="left:52%;bottom:4%"><b>18.7k Conversations</b><span>Others</span></div>
+      <div class="fl" id="fl-de" style="left:52%;top:6%"><b>21.7k Conversations</b><span>Germany</span></div>
+      <div class="fl" id="fl-fr" style="left:38%;top:28%"><b>18.5k Conversations</b><span>France</span></div>
+      <div class="fl" id="fl-cn" style="left:60%;bottom:24%"><b>20.8k Conversations</b><span>China</span></div>
+      <div class="fl" id="fl-other" style="left:52%;bottom:4%"><b>18.7k Conversations</b><span>Others</span></div>
 
       <!-- Hero grid -->
       <div class="hgrid">
@@ -229,13 +231,13 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:#1a1a1a;display:f
           <div class="gc hl-top">
             <div class="ov-title">Brand Health Overview</div>
             <div class="kpi-row">
-              <div><div class="kpi-label">Brand Health Score</div><div class="kpi-val">78<small>/100</small> <span class="kpi-arr"><svg width="11" height="11" class="arr-svg"><path d="M3 8L8 3M8 3H4.5M8 3v3.5"/></svg></span></div></div>
-              <div><div class="kpi-label">Total Mentions</div><div class="kpi-val">23.4k <span class="kpi-arr"><svg width="11" height="11" class="arr-svg"><path d="M3 8L8 3M8 3H4.5M8 3v3.5"/></svg></span></div></div>
-              <div><div class="kpi-label">Positive Sentiment</div><div class="kpi-val">68% <span class="kpi-arr"><svg width="11" height="11" class="arr-svg"><path d="M3 8L8 3M8 3H4.5M8 3v3.5"/></svg></span></div></div>
+              <div><div class="kpi-label">Brand Health Score</div><div class="kpi-val" id="idx-health">78<small>/100</small> <span class="kpi-arr"><svg width="11" height="11" class="arr-svg"><path d="M3 8L8 3M8 3H4.5M8 3v3.5"/></svg></span></div></div>
+              <div><div class="kpi-label">Total Mentions</div><div class="kpi-val" id="idx-mentions">23.4k <span class="kpi-arr"><svg width="11" height="11" class="arr-svg"><path d="M3 8L8 3M8 3H4.5M8 3v3.5"/></svg></span></div></div>
+              <div><div class="kpi-label">Positive Sentiment</div><div class="kpi-val" id="idx-pos">68% <span class="kpi-arr"><svg width="11" height="11" class="arr-svg"><path d="M3 8L8 3M8 3H4.5M8 3v3.5"/></svg></span></div></div>
             </div>
           </div>
           <div class="hl-bot">
-            <div class="gc sc"><div class="sc-arrow"><svg width="8" height="8" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 6.5L6.5 1.5M6.5 1.5H3.5M6.5 1.5v3"/></svg></div><div class="sc-label">Share of<br>Voice</div><div class="sc-val">41.2% <span class="kpi-arr"><svg width="9" height="9" class="arr-svg" stroke-width="1.8"><path d="M2 7L7 2M7 2H4M7 2v3"/></svg></span></div></div>
+            <div class="gc sc"><div class="sc-arrow"><svg width="8" height="8" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 6.5L6.5 1.5M6.5 1.5H3.5M6.5 1.5v3"/></svg></div><div class="sc-label">Share of<br>Voice</div><div class="sc-val" id="idx-sov">41.2% <span class="kpi-arr"><svg width="9" height="9" class="arr-svg" stroke-width="1.8"><path d="M2 7L7 2M7 2H4M7 2v3"/></svg></span></div></div>
             <div class="gc sc"><div class="sc-arrow"><svg width="8" height="8" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 6.5L6.5 1.5M6.5 1.5H3.5M6.5 1.5v3"/></svg></div><div class="sc-label">Competitor<br>Pressure</div><div class="sc-val" style="font-size:clamp(13px,1.1vw,17px)">Moderate</div><div class="sc-sub">score</div><div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div></div>
             <div class="gc sc"><div class="sc-arrow"><svg width="8" height="8" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 6.5L6.5 1.5M6.5 1.5H3.5M6.5 1.5v3"/></svg></div><div class="sc-label">Conversation<br>Growth</div><div class="sc-val" style="color:#3CB371">+15.8% <span class="kpi-arr"><svg width="9" height="9" class="arr-svg" stroke-width="1.8"><path d="M2 7L7 2M7 2H4M7 2v3"/></svg></span></div></div>
           </div>
@@ -243,11 +245,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:#1a1a1a;display:f
         <div></div>
         <div class="gc2" style="display:flex;flex-direction:column">
           <div class="card-hdr"><div class="card-title">Key Competitors</div><div class="card-arrow"><svg width="9" height="9" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7L7 2M7 2H4M7 2v3"/></svg></div></div>
-          <div class="comp-list">
-            <div class="comp-row"><span class="comp-n">Competitor A</span><span class="comp-p">35%</span></div>
-            <div class="comp-row"><span class="comp-n">Competitor B</span><span class="comp-p">25%</span></div>
-            <div class="comp-row"><span class="comp-n">Competitor C</span><span class="comp-p">20%</span></div>
-            <div class="comp-row"><span class="comp-n">Competitor D</span><span class="comp-p">20%</span></div>
+          <div class="comp-list" id="idx-competitors">
+            <div class="comp-row"><span class="comp-n">Chanel</span><span class="comp-p">57.7%</span></div>
           </div>
         </div>
       </div>
@@ -287,12 +286,81 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:#1a1a1a;display:f
 <script>
 Chart.defaults.font.family="'Inter',sans-serif";
 Chart.defaults.font.size=10;
-new Chart(document.getElementById('evoChart'),{
-  type:'line',
-  data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug'],datasets:[{data:[-30,-15,0,5,10,18,25,32],borderColor:'rgba(255,255,255,.65)',backgroundColor:function(c){var g=c.chart.ctx.createLinearGradient(0,0,0,c.chart.height);g.addColorStop(0,'rgba(255,255,255,.08)');g.addColorStop(1,'rgba(255,255,255,.01)');return g},borderWidth:2.5,fill:true,tension:.4,pointRadius:0,pointHoverRadius:5,pointHoverBackgroundColor:'#fff'}]},
-  options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:10,right:30}},plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,.04)'},border:{display:false},ticks:{color:'rgba(255,255,255,.28)',font:{size:9}}},y:{grid:{color:'rgba(255,255,255,.04)'},border:{display:false},min:-100,max:100,ticks:{stepSize:50,color:'rgba(255,255,255,.28)',font:{size:9},callback:function(v){return v>0?'+'+v:v===0?'+0':''+v}},title:{display:true,text:'Net Sentiment',color:'rgba(255,255,255,.2)',font:{size:8,weight:500}}}}},
-  plugins:[{afterDatasetsDraw:function(chart){var m=chart.getDatasetMeta(0),p=m.data[m.data.length-1];if(!p)return;var x=chart.ctx;x.save();var t='+32 (Aug)';x.font='600 10px Inter';var w=x.measureText(t).width,bw=w+14,bh=20,bx=p.x-bw/2,by=p.y-28;x.fillStyle='rgba(30,30,30,.88)';x.beginPath();x.roundRect(bx,by,bw,bh,8);x.fill();x.fillStyle='#3CB371';x.textAlign='center';x.textBaseline='middle';x.fillText(t,p.x,by+bh/2);x.beginPath();x.arc(p.x,p.y,4,0,Math.PI*2);x.fillStyle='#fff';x.fill();x.beginPath();x.arc(p.x,p.y,2,0,Math.PI*2);x.fillStyle='rgba(30,30,30,.7)';x.fill();x.restore()}}]
-});
+
+const arrow='<span class="kpi-arr"><svg width="11" height="11" class="arr-svg"><path d="M3 8L8 3M8 3H4.5M8 3v3.5"/></svg></span>';
+function fmtK(n){return n>=1000?(n/1000).toFixed(1)+'k':n}
+
+/* ─── Load live data from Supabase ─── */
+(async function initDashboard(){
+  // Run all queries in parallel
+  const [sentiment, sov, geo, engStats] = await Promise.all([
+    getSentimentStats({brand:'hermes'}),
+    getShareOfVoice({}),
+    getSentimentByLocation({brand:'hermes'}),
+    getEngagementStats({brand:'hermes'})
+  ]);
+
+  // KPIs
+  const healthScore = Math.round(sentiment.positive_pct - sentiment.negative_pct + 50);
+  document.getElementById('idx-health').innerHTML = healthScore+'<small>/100</small> '+arrow;
+  document.getElementById('idx-mentions').innerHTML = fmtK(sentiment.total_mentions)+' '+arrow;
+  document.getElementById('idx-pos').innerHTML = sentiment.positive_pct+'% '+arrow;
+
+  // Share of Voice
+  const hermesSOV = sov.hermes ? sov.hermes.avg_share_of_voice : 42.3;
+  document.getElementById('idx-sov').innerHTML = hermesSOV+'% <span class="kpi-arr"><svg width="9" height="9" class="arr-svg" stroke-width="1.8"><path d="M2 7L7 2M7 2H4M7 2v3"/></svg></span>';
+
+  // Competitor panel
+  const compEl = document.getElementById('idx-competitors');
+  if(sov.chanel){
+    compEl.innerHTML = '<div class="comp-row"><span class="comp-n">Chanel</span><span class="comp-p">'+sov.chanel.avg_share_of_voice+'%</span></div>';
+  }
+
+  // Geo floating labels
+  const geoMap = {};
+  geo.forEach(g => { geoMap[g.country] = g.mention_count; });
+  const flDe = document.getElementById('fl-de');
+  const flFr = document.getElementById('fl-fr');
+  const flCn = document.getElementById('fl-cn');
+  const flOt = document.getElementById('fl-other');
+  if(flDe) flDe.querySelector('b').textContent = fmtK(geoMap['Germany']||720)+' Conversations';
+  if(flFr) flFr.querySelector('b').textContent = fmtK(geoMap['France']||2840)+' Conversations';
+  if(flCn) flCn.querySelector('b').textContent = fmtK(geoMap['China']||1920)+' Conversations';
+  const otherCount = geo.filter(g=>!['Germany','France','China'].includes(g.country)).reduce((s,g)=>s+g.mention_count,0);
+  if(flOt) flOt.querySelector('b').textContent = fmtK(otherCount||4240)+' Conversations';
+
+  // Sentiment Evolution chart — build from engagement_stats monthly data
+  const byMonth = {};
+  engStats.forEach(r => {
+    const m = r.date ? r.date.slice(0,7) : null;
+    if(!m) return;
+    if(!byMonth[m]) byMonth[m] = {pos:0,neg:0,total:0};
+    byMonth[m].pos += r.positive_count;
+    byMonth[m].neg += r.negative_count;
+    byMonth[m].total += r.total_mentions;
+  });
+  const months = Object.keys(byMonth).sort();
+  const labels = months.map(m => {
+    const [y,mo] = m.split('-');
+    return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+mo-1];
+  });
+  const netData = months.map(m => {
+    const d = byMonth[m];
+    return d.total ? Math.round((d.pos - d.neg) / d.total * 100) : 0;
+  });
+
+  const lastVal = netData[netData.length-1] || 0;
+  const lastLabel = labels[labels.length-1] || '';
+  const labelText = (lastVal>=0?'+':'')+lastVal+' ('+lastLabel+')';
+
+  new Chart(document.getElementById('evoChart'),{
+    type:'line',
+    data:{labels,datasets:[{data:netData,borderColor:'rgba(255,255,255,.65)',backgroundColor:function(c){var g=c.chart.ctx.createLinearGradient(0,0,0,c.chart.height);g.addColorStop(0,'rgba(255,255,255,.08)');g.addColorStop(1,'rgba(255,255,255,.01)');return g},borderWidth:2.5,fill:true,tension:.4,pointRadius:0,pointHoverRadius:5,pointHoverBackgroundColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:10,right:30}},plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,.04)'},border:{display:false},ticks:{color:'rgba(255,255,255,.28)',font:{size:9}}},y:{grid:{color:'rgba(255,255,255,.04)'},border:{display:false},min:-100,max:100,ticks:{stepSize:50,color:'rgba(255,255,255,.28)',font:{size:9},callback:function(v){return v>0?'+'+v:v===0?'+0':''+v}},title:{display:true,text:'Net Sentiment',color:'rgba(255,255,255,.2)',font:{size:8,weight:500}}}}},
+    plugins:[{afterDatasetsDraw:function(chart){var m=chart.getDatasetMeta(0),p=m.data[m.data.length-1];if(!p)return;var x=chart.ctx;x.save();var t=labelText;x.font='600 10px Inter';var w=x.measureText(t).width,bw=w+14,bh=20,bx=p.x-bw/2,by=p.y-28;x.fillStyle='rgba(30,30,30,.88)';x.beginPath();x.roundRect(bx,by,bw,bh,8);x.fill();x.fillStyle=lastVal>=0?'#3CB371':'#EF4444';x.textAlign='center';x.textBaseline='middle';x.fillText(t,p.x,by+bh/2);x.beginPath();x.arc(p.x,p.y,4,0,Math.PI*2);x.fillStyle='#fff';x.fill();x.beginPath();x.arc(p.x,p.y,2,0,Math.PI*2);x.fillStyle='rgba(30,30,30,.7)';x.fill();x.restore()}}]
+  });
+})();
+
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));t.classList.add('on')});
 document.querySelectorAll('.evo-tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.evo-tab').forEach(x=>x.classList.remove('on'));b.classList.add('on')});
 </script>
