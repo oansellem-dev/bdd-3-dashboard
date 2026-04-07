@@ -365,5 +365,7 @@ function fmtK(n){return n>=1000?(n/1000).toFixed(1)+'k':n}
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));t.classList.add('on')});
 document.querySelectorAll('.evo-tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.evo-tab').forEach(x=>x.classList.remove('on'));b.classList.add('on')});
 </script>
+<script src="components.js"></script>
+<script>initComponents('dashboard');</script>
 </body>
 </html>
