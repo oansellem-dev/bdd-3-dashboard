@@ -93,7 +93,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--dark);displ
 .kc-val-suffix{font-size:28px;font-weight:700;color:var(--t1)}
 
 /* ── ROW 2 ── */
-.r2{display:grid;grid-template-columns:27% 1fr 18% 18%;gap:var(--gap);flex:1;min-height:0}
+.r2{display:flex;gap:var(--gap);flex:1;min-height:0}
+.r2-right{flex:1;display:flex;flex-direction:column;gap:var(--gap);min-height:0}
+.r2-top{display:grid;grid-template-columns:1fr 19% 19%;gap:var(--gap);flex:1;min-height:0}
+.r2-bot{height:160px;flex-shrink:0}
 .card{background:var(--card);border-radius:var(--r);padding:18px 20px;display:flex;flex-direction:column;overflow:hidden;position:relative}
 .card-title{font-size:15px;font-weight:600;color:var(--t1);flex-shrink:0}
 .card-hdr{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-shrink:0}
@@ -340,8 +343,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--dark);displ
       <!-- ROW 2 -->
       <div class="r2">
 
-        <!-- Create Report -->
-        <div class="card" style="padding:14px 16px">
+        <!-- LEFT: Create Report (full height) -->
+        <div class="card" style="padding:14px 16px;width:27%;flex-shrink:0">
           <div class="card-title" style="margin-bottom:8px">Create Report</div>
           <div class="cf-lbl">Title</div>
           <input class="cf-input" id="cf-title" placeholder="Report title..." style="margin-bottom:6px">
@@ -368,88 +371,117 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--dark);displ
           <div class="gen-loader" id="genLoader"><div class="spin"></div> Generating report...</div>
         </div>
 
-        <!-- COMEX Summary -->
-        <div class="card">
-          <div class="card-hdr">
-            <div class="card-title">COMEX Summary</div>
-            <div class="auto-badge">Auto-generated</div>
-          </div>
-          <div class="comex-list" id="comex-list">
-            <div class="comex-item"><div class="comex-num">1</div><div class="comex-text"><b>Sentiment:</b> Hermès shows <span id="cx-pos">68%</span> positive sentiment, up +4pts vs previous period.</div></div>
-            <div class="comex-item"><div class="comex-num">2</div><div class="comex-text"><b>Competition:</b> Hermès holds <span id="cx-sov-h">41.2%</span> SOV vs Chanel <span id="cx-sov-c">35.8%</span>. Hermès dominates.</div></div>
-            <div class="comex-item"><div class="comex-num">3</div><div class="comex-text"><b>Trends:</b> <span id="cx-trends">24</span> active trends detected. Hermès present on <span id="cx-trends-h">8</span>. Top opportunity: <span id="cx-top-trend">#SlowFashion</span>.</div></div>
-            <div class="comex-item"><div class="comex-num">4</div><div class="comex-text"><b>Alert:</b> <span id="cx-alert">No critical alert this week. Negative spike on TikTok monitored.</span></div></div>
-            <div class="comex-item"><div class="comex-num">5</div><div class="comex-text"><b>Priority:</b> <span id="cx-priority">Activate #SlowFashion before expires in 2 days — craftsmanship angle.</span></div></div>
-          </div>
-          <button class="btn-copy" id="copySummaryBtn" onclick="copySummary()">Copy Summary</button>
-        </div>
+        <!-- RIGHT: stacked column -->
+        <div class="r2-right">
 
-        <!-- KPIs Overview -->
-        <div class="card">
-          <div class="card-title" style="margin-bottom:10px">KPIs Overview</div>
-          <div style="flex:1;display:flex;flex-direction:column;justify-content:space-evenly">
-            <div class="kpi-ov-row">
-              <div class="kpi-ov-lbl">Brand Health Score</div>
-              <div class="kpi-ov-val g"><span id="ov-health">78/100</span><span class="kpi-ov-arr">↗</span></div>
-            </div>
-            <div class="kpi-ov-row">
-              <div class="kpi-ov-lbl">Total Mentions</div>
-              <div class="kpi-ov-val g"><span id="ov-mentions">23.4k</span><span class="kpi-ov-arr">↗</span></div>
-            </div>
-            <div class="kpi-ov-row">
-              <div class="kpi-ov-lbl">Positive Sentiment</div>
-              <div class="kpi-ov-val g"><span id="ov-pos">68%</span><span class="kpi-ov-arr">↗</span></div>
-            </div>
-            <div class="kpi-ov-row">
-              <div class="kpi-ov-lbl">SOV Hermès</div>
-              <div class="kpi-ov-val g"><span id="ov-sov">41.2%</span><span class="kpi-ov-arr">↗</span></div>
-            </div>
-            <div class="kpi-ov-row">
-              <div class="kpi-ov-lbl">Active Alerts</div>
-              <div class="kpi-ov-val g"><span id="ov-alerts">0</span> <span style="color:#22C55E;font-size:14px">✓</span></div>
-            </div>
-            <div class="kpi-ov-row">
-              <div class="kpi-ov-lbl">Top Platform</div>
-              <div class="kpi-ov-val"><span id="ov-platform">Instagram</span></div>
-            </div>
-            <div class="kpi-ov-row">
-              <div class="kpi-ov-lbl">Avg Engagement</div>
-              <div class="kpi-ov-val"><span id="ov-eng">4.2%</span></div>
-            </div>
-          </div>
-        </div>
+          <!-- TOP ROW: COMEX + KPIs + Exec Score -->
+          <div class="r2-top">
 
-        <!-- Execution Score Detail -->
-        <div class="card">
-          <div class="card-title" style="margin-bottom:8px">Execution Score</div>
-          <div class="gauge-wrap">
-            <div class="gauge-svg-wrap">
-              <svg viewBox="0 0 88 88" width="88" height="88">
-                <circle cx="44" cy="44" r="34" stroke="#444" stroke-width="6" fill="none"/>
-                <circle cx="44" cy="44" r="34" stroke="#22C55E" stroke-width="6" fill="none"
-                  stroke-dasharray="213.6" id="gauge-circle"
-                  stroke-dashoffset="55.5" stroke-linecap="round"
-                  transform="rotate(-90 44 44)"/>
-              </svg>
-              <div class="gauge-center">
-                <div class="gauge-val" id="gauge-pct">74%</div>
+            <!-- COMEX Summary -->
+            <div class="card">
+              <div class="card-hdr">
+                <div class="card-title">COMEX Summary</div>
+                <div class="auto-badge">Auto-generated</div>
+              </div>
+              <div class="comex-list" id="comex-list">
+                <div class="comex-item"><div class="comex-num">1</div><div class="comex-text"><b>Sentiment:</b> Hermès shows <span id="cx-pos">68%</span> positive sentiment, up +4pts vs previous period.</div></div>
+                <div class="comex-item"><div class="comex-num">2</div><div class="comex-text"><b>Competition:</b> Hermès holds <span id="cx-sov-h">41.2%</span> SOV vs Chanel <span id="cx-sov-c">35.8%</span>. Hermès dominates.</div></div>
+                <div class="comex-item"><div class="comex-num">3</div><div class="comex-text"><b>Trends:</b> <span id="cx-trends">24</span> active trends detected. Hermès present on <span id="cx-trends-h">8</span>. Top opportunity: <span id="cx-top-trend">#SlowFashion</span>.</div></div>
+                <div class="comex-item"><div class="comex-num">4</div><div class="comex-text"><b>Alert:</b> <span id="cx-alert">No critical alert this week. Negative spike on TikTok monitored.</span></div></div>
+                <div class="comex-item"><div class="comex-num">5</div><div class="comex-text"><b>Priority:</b> <span id="cx-priority">Activate #SlowFashion before expires in 2 days — craftsmanship angle.</span></div></div>
+              </div>
+              <button class="btn-copy" id="copySummaryBtn" onclick="copySummary()">Copy Summary</button>
+            </div>
+
+            <!-- KPIs Overview -->
+            <div class="card">
+              <div class="card-title" style="margin-bottom:10px">KPIs Overview</div>
+              <div style="flex:1;display:flex;flex-direction:column;justify-content:space-evenly">
+                <div class="kpi-ov-row"><div class="kpi-ov-lbl">Brand Health Score</div><div class="kpi-ov-val g"><span id="ov-health">78/100</span><span class="kpi-ov-arr">↗</span></div></div>
+                <div class="kpi-ov-row"><div class="kpi-ov-lbl">Total Mentions</div><div class="kpi-ov-val g"><span id="ov-mentions">23.4k</span><span class="kpi-ov-arr">↗</span></div></div>
+                <div class="kpi-ov-row"><div class="kpi-ov-lbl">Positive Sentiment</div><div class="kpi-ov-val g"><span id="ov-pos">68%</span><span class="kpi-ov-arr">↗</span></div></div>
+                <div class="kpi-ov-row"><div class="kpi-ov-lbl">SOV Hermès</div><div class="kpi-ov-val g"><span id="ov-sov">41.2%</span><span class="kpi-ov-arr">↗</span></div></div>
+                <div class="kpi-ov-row"><div class="kpi-ov-lbl">Active Alerts</div><div class="kpi-ov-val g"><span id="ov-alerts">0</span> <span style="color:#22C55E;font-size:14px">✓</span></div></div>
+                <div class="kpi-ov-row"><div class="kpi-ov-lbl">Top Platform</div><div class="kpi-ov-val"><span id="ov-platform">Instagram</span></div></div>
+                <div class="kpi-ov-row"><div class="kpi-ov-lbl">Avg Engagement</div><div class="kpi-ov-val"><span id="ov-eng">4.2%</span></div></div>
               </div>
             </div>
-            <div class="week-bars">
-              <div class="gauge-reco">recommendations followed</div>
-              <div class="wb-row"><div class="wb-lbl">Week 1</div><div class="wb-track"><div class="wb-fill" style="width:60%;background:var(--orange)"></div></div><div class="wb-val">60%</div></div>
-              <div class="wb-row"><div class="wb-lbl">Week 2</div><div class="wb-track"><div class="wb-fill" style="width:65%;background:var(--orange)"></div></div><div class="wb-val">65%</div></div>
-              <div class="wb-row"><div class="wb-lbl">Week 3</div><div class="wb-track"><div class="wb-fill" style="width:70%;background:var(--green)"></div></div><div class="wb-val">70%</div></div>
-              <div class="wb-row"><div class="wb-lbl">Week 4</div><div class="wb-track"><div class="wb-fill" id="gauge-w4-bar" style="width:74%;background:var(--green)"></div></div><div class="wb-val" id="gauge-w4-val">74% week</div></div>
+
+            <!-- Execution Score Detail -->
+            <div class="card">
+              <div class="card-title" style="margin-bottom:8px">Execution Score</div>
+              <div class="gauge-wrap">
+                <div class="gauge-svg-wrap">
+                  <svg viewBox="0 0 88 88" width="88" height="88">
+                    <circle cx="44" cy="44" r="34" stroke="#444" stroke-width="6" fill="none"/>
+                    <circle cx="44" cy="44" r="34" stroke="#22C55E" stroke-width="6" fill="none"
+                      stroke-dasharray="213.6" id="gauge-circle"
+                      stroke-dashoffset="55.5" stroke-linecap="round"
+                      transform="rotate(-90 44 44)"/>
+                  </svg>
+                  <div class="gauge-center">
+                    <div class="gauge-val" id="gauge-pct">74%</div>
+                  </div>
+                </div>
+                <div class="week-bars">
+                  <div class="gauge-reco">recommendations followed</div>
+                  <div class="wb-row"><div class="wb-lbl">Week 1</div><div class="wb-track"><div class="wb-fill" style="width:60%;background:var(--orange)"></div></div><div class="wb-val">60%</div></div>
+                  <div class="wb-row"><div class="wb-lbl">Week 2</div><div class="wb-track"><div class="wb-fill" style="width:65%;background:var(--orange)"></div></div><div class="wb-val">65%</div></div>
+                  <div class="wb-row"><div class="wb-lbl">Week 3</div><div class="wb-track"><div class="wb-fill" style="width:70%;background:var(--green)"></div></div><div class="wb-val">70%</div></div>
+                  <div class="wb-row"><div class="wb-lbl">Week 4</div><div class="wb-track"><div class="wb-fill" id="gauge-w4-bar" style="width:74%;background:var(--green)"></div></div><div class="wb-val" id="gauge-w4-val">74%</div></div>
+                </div>
+              </div>
+              <div class="exec-comment" id="exec-comment">Good follow-through — keep the momentum</div>
             </div>
-          </div>
-          <div class="exec-comment" id="exec-comment">Good follow-through — keep the momentum</div>
-        </div>
+
+          </div><!-- /r2-top -->
+
+          <!-- BOTTOM: Reports Generated -->
+          <div class="card r2-bot">
+            <div class="card-hdr">
+              <div class="card-title" style="flex:1">Reports Generated</div>
+              <div class="rpt-counter" id="rpt-counter">12 reports</div>
+            </div>
+            <div class="rpt-table-wrap">
+              <table class="rpt-tbl">
+                <thead>
+                  <tr>
+                    <th>Title</th><th>Type</th><th>Period</th><th>Date</th><th>Sections</th><th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="rpt-tbody">
+                  <tr>
+                    <td><span class="rpt-title">Weekly Hermès Report — Week 14</span></td>
+                    <td><span class="rpt-type">Weekly</span></td>
+                    <td style="color:var(--gr)">Apr 1-7</td>
+                    <td style="color:var(--gr)">2 days ago</td>
+                    <td><div class="rpt-badges"><span class="rpt-tag">Summary</span><span class="rpt-tag">KPIs</span><span class="rpt-tag">Reco</span><span class="rpt-tag">Brief</span></div></td>
+                    <td><button class="rpt-btn">View</button><button class="rpt-btn">Export PDF</button></td>
+                  </tr>
+                  <tr>
+                    <td><span class="rpt-title">Monthly Brand Review — March</span></td>
+                    <td><span class="rpt-type">Monthly</span></td>
+                    <td style="color:var(--gr)">Mar 1-31</td>
+                    <td style="color:var(--gr)">8 days ago</td>
+                    <td><div class="rpt-badges"><span class="rpt-tag">Summary</span><span class="rpt-tag">KPIs</span></div></td>
+                    <td><button class="rpt-btn">View</button><button class="rpt-btn">Export PDF</button></td>
+                  </tr>
+                  <tr>
+                    <td><span class="rpt-title">Crisis Report — TikTok Spike</span></td>
+                    <td><span class="rpt-type">Ad hoc</span></td>
+                    <td style="color:var(--gr)">Mar 15</td>
+                    <td style="color:var(--gr)">22 days ago</td>
+                    <td><div class="rpt-badges"><span class="rpt-tag">Crisis</span><span class="rpt-tag">KPIs</span><span class="rpt-tag">Reco</span></div></td>
+                    <td><button class="rpt-btn">View</button><button class="rpt-btn">Export PDF</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div><!-- /r2-bot -->
+
+        </div><!-- /r2-right -->
 
       </div><!-- /r2 -->
-
-      <!-- rpt-tbody kept hidden for JS compatibility -->
-      <tbody id="rpt-tbody" style="display:none"></tbody>
 
     </div><!-- /rows -->
 
