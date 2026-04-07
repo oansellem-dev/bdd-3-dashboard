@@ -93,25 +93,25 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--dark);displ
 .kc-val-suffix{font-size:28px;font-weight:700;color:var(--t1)}
 
 /* ── ROW 2 ── */
-.r2{display:grid;grid-template-columns:22% 1fr 19% 19%;gap:var(--gap);flex:1;min-height:0}
+.r2{display:grid;grid-template-columns:27% 1fr 18% 18%;gap:var(--gap);flex:1;min-height:0}
 .card{background:var(--card);border-radius:var(--r);padding:18px 20px;display:flex;flex-direction:column;overflow:hidden;position:relative}
 .card-title{font-size:15px;font-weight:600;color:var(--t1);flex-shrink:0}
 .card-hdr{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-shrink:0}
 
 /* Create Report */
-.cf-lbl{font-size:11px;color:var(--gr);margin-bottom:3px}
-.cf-input{background:var(--g2);border:none;border-radius:8px;padding:7px 10px;font-size:12px;color:var(--t1);font-family:'Inter',sans-serif;outline:none;width:100%}
+.cf-lbl{font-size:11px;color:var(--gr);margin-bottom:2px}
+.cf-input{background:var(--g2);border:none;border-radius:8px;padding:6px 10px;font-size:12px;color:var(--t1);font-family:'Inter',sans-serif;outline:none;width:100%}
 .cf-input::placeholder{color:#666}
-.cf-type{display:flex;gap:2px;background:var(--g2);border-radius:8px;padding:3px;margin-bottom:8px}
-.cf-type-btn{flex:1;padding:4px 6px;border-radius:6px;font-size:11px;font-weight:500;color:var(--gr);cursor:pointer;border:none;font-family:'Inter',sans-serif;background:none;transition:.15s;text-align:center;white-space:nowrap}
+.cf-type{display:flex;gap:2px;background:var(--g2);border-radius:8px;padding:3px;margin-bottom:6px}
+.cf-type-btn{flex:1;padding:3px 4px;border-radius:6px;font-size:11px;font-weight:500;color:var(--gr);cursor:pointer;border:none;font-family:'Inter',sans-serif;background:none;transition:.15s;text-align:center;white-space:nowrap}
 .cf-type-btn.on{background:#fff;color:var(--dark);font-weight:600}
-.cf-period{display:flex;gap:6px;margin-bottom:8px}
-.cf-period input{flex:1;background:var(--g2);border:none;border-radius:8px;padding:6px 8px;font-size:11px;color:#888;font-family:'Inter',sans-serif;outline:none}
-.cf-checks{display:flex;flex-direction:column;gap:3px;margin-bottom:10px;flex:1}
+.cf-period{display:flex;gap:6px;margin-bottom:6px}
+.cf-period input{flex:1;background:var(--g2);border:none;border-radius:8px;padding:5px 8px;font-size:11px;color:#888;font-family:'Inter',sans-serif;outline:none}
+.cf-checks{display:flex;flex-direction:column;gap:4px;margin-bottom:8px;flex:1;justify-content:space-evenly}
 .cf-check{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--t1);cursor:pointer;line-height:1}
-.cf-check input[type=checkbox]{width:14px;height:14px;accent-color:var(--green);cursor:pointer;flex-shrink:0}
+.cf-check input[type=checkbox]{width:13px;height:13px;accent-color:var(--green);cursor:pointer;flex-shrink:0}
 .cf-check input[type=checkbox]:not(:checked){accent-color:var(--g3)}
-.btn-gen{width:100%;padding:10px;border-radius:10px;background:var(--red);color:#fff;font-size:14px;font-weight:600;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:.15s;flex-shrink:0}
+.btn-gen{width:100%;padding:9px;border-radius:10px;background:var(--red);color:#fff;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:.15s;flex-shrink:0}
 .btn-gen:hover{opacity:.88}
 .btn-gen:disabled{opacity:.5;cursor:default}
 
@@ -148,7 +148,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--dark);displ
 .exec-comment{font-size:10px;color:var(--green);font-style:italic;margin-top:auto;padding-top:4px}
 
 /* ── ROW 3 — Reports table full width ── */
-.r3{display:flex;flex-direction:column;height:190px;min-height:190px;flex-shrink:0;overflow:hidden}
+.r3{display:flex;flex-direction:column;height:168px;min-height:168px;flex-shrink:0;overflow:hidden}
 
 /* Recommendations */
 .reco-rows{flex:1;display:flex;flex-direction:column;gap:4px;overflow:hidden;min-height:0;justify-content:space-evenly}
@@ -343,10 +343,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--dark);displ
       <div class="r2">
 
         <!-- Create Report -->
-        <div class="card" style="padding:16px 18px">
-          <div class="card-title" style="margin-bottom:10px">Create Report</div>
+        <div class="card" style="padding:14px 16px">
+          <div class="card-title" style="margin-bottom:8px">Create Report</div>
           <div class="cf-lbl">Title</div>
-          <input class="cf-input" id="cf-title" placeholder="Report title..." style="margin-bottom:8px">
+          <input class="cf-input" id="cf-title" placeholder="Report title..." style="margin-bottom:6px">
           <div class="cf-lbl">Type</div>
           <div class="cf-type">
             <button class="cf-type-btn on" onclick="selectType(this)">Weekly</button>
