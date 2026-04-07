@@ -147,8 +147,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--dark);displ
 .wb-val{font-size:10px;color:var(--t1);min-width:42px;text-align:right}
 .exec-comment{font-size:10px;color:var(--green);font-style:italic;margin-top:auto;padding-top:4px}
 
-/* ── ROW 3 — Reports table full width ── */
-.r3{display:flex;flex-direction:column;height:148px;min-height:148px;flex-shrink:0;overflow:hidden}
 
 /* Recommendations */
 .reco-rows{flex:1;display:flex;flex-direction:column;gap:4px;overflow:hidden;min-height:0;justify-content:space-evenly}
@@ -450,58 +448,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--dark);displ
 
       </div><!-- /r2 -->
 
-      <!-- ROW 3 — Reports table full width -->
-      <div class="r3">
-
-        <!-- Reports Table -->
-        <div class="card">
-          <div class="card-hdr">
-            <div class="card-title" style="flex:1">Reports Generated</div>
-            <div class="rpt-counter" id="rpt-counter">12 reports</div>
-          </div>
-          <div class="rpt-table-wrap">
-            <table class="rpt-tbl">
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Type</th>
-                  <th>Period</th>
-                  <th>Date</th>
-                  <th>Sections</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="rpt-tbody">
-                <tr>
-                  <td><span class="rpt-title">Weekly Hermès Report — Week 14</span></td>
-                  <td><span class="rpt-type">Weekly</span></td>
-                  <td style="color:var(--gr)">Apr 1-7</td>
-                  <td style="color:var(--gr)">2 days ago</td>
-                  <td><div class="rpt-badges"><span class="rpt-tag">Summary</span><span class="rpt-tag">KPIs</span><span class="rpt-tag">Reco</span><span class="rpt-tag">Brief</span></div></td>
-                  <td><button class="rpt-btn">View</button><button class="rpt-btn">Export PDF</button></td>
-                </tr>
-                <tr>
-                  <td><span class="rpt-title">Monthly Brand Review — March</span></td>
-                  <td><span class="rpt-type">Monthly</span></td>
-                  <td style="color:var(--gr)">Mar 1-31</td>
-                  <td style="color:var(--gr)">8 days ago</td>
-                  <td><div class="rpt-badges"><span class="rpt-tag">Summary</span><span class="rpt-tag">KPIs</span></div></td>
-                  <td><button class="rpt-btn">View</button><button class="rpt-btn">Export PDF</button></td>
-                </tr>
-                <tr>
-                  <td><span class="rpt-title">Crisis Report — TikTok Spike</span></td>
-                  <td><span class="rpt-type">Ad hoc</span></td>
-                  <td style="color:var(--gr)">Mar 15</td>
-                  <td style="color:var(--gr)">22 days ago</td>
-                  <td><div class="rpt-badges"><span class="rpt-tag">Crisis</span><span class="rpt-tag">KPIs</span><span class="rpt-tag">Reco</span><span class="rpt-tag">Brief</span><span class="rpt-tag">Buttons</span></div></td>
-                  <td><button class="rpt-btn">View</button><button class="rpt-btn">Export PDF</button></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-      </div><!-- /r3 -->
+      <!-- rpt-tbody kept hidden for JS compatibility -->
+      <tbody id="rpt-tbody" style="display:none"></tbody>
 
     </div><!-- /rows -->
 
